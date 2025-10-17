@@ -1,14 +1,33 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { validateCreateTicket, validateGetTickets, checkValidationErrors } from '../middleware/validation';
 import { createError } from '../middleware/errorHandler';
 import { Parser } from 'json2csv';
 
+interface CreateTicketBody {
+  tripId: string;
+  tripDate: string;
+  driverId: number;
+  reason: string;
+  city: string;
+  serviceType: string;
+  customerPhone: string;
+  agentName: string;
+}
+
+interface GetTicketsQuery {
+  reason?: string;
+  start_date?: string;
+  end_date?: string;
+  page?: string;
+  limit?: string;
+}
+
 const router = express.Router();
 const prisma = new PrismaClient();
 
 // POST /api/tickets - Create a new ticket
-router.post('/', validateCreateTicket, checkValidationErrors, async (req, res, next) => {
+router.post('/', validateCreateTicket, checkValidationErrors, async (req: Request<{}, {}, CreateTicketBody>, res: Response, next: NextFunction) => {
   try {
     const {
       tripId,
@@ -44,7 +63,7 @@ router.post('/', validateCreateTicket, checkValidationErrors, async (req, res, n
 });
 
 // GET /api/tickets - Get tickets with filtering and pagination
-router.get('/', validateGetTickets, checkValidationErrors, async (req, res, next) => {
+router.get('/', validateGetTickets, checkValidationErrors, async (req: Request<{}, {}, {}, GetTicketsQuery>, res: Response, next: NextFunction) => {
   try {
     const {
       reason,
@@ -128,7 +147,7 @@ router.get('/', validateGetTickets, checkValidationErrors, async (req, res, next
 });
 
 // GET /api/tickets/export - Export tickets as CSV
-router.get('/export', validateGetTickets, checkValidationErrors, async (req, res, next) => {
+router.get('/export', validateGetTickets, checkValidationErrors, async (req: Request<{}, {}, {}, GetTicketsQuery>, res: Response, next: NextFunction) => {
   try {
     const { reason, start_date, end_date } = req.query;
 
