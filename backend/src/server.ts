@@ -4,26 +4,27 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { PrismaClient } from '@prisma/client';
-import ticketRoutes from './routes/tickets';
-import { errorHandler } from './middleware/errorHandler';
+import ticketRoutes from './routes/tickets.js';
+import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 const prisma = new PrismaClient();
 
+// Fix for __dirname in ES modules (TypeScript)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Database connection test
 prisma.$connect()
-  .then(() => {
-    console.log('Successfully connected to the database');
-  })
-  .catch((error) => {
-    console.error('Failed to connect to the database:', error);
-  });
+  .then(() => console.log('✅ Successfully connected to the database'))
+  .catch((error) => console.error('❌ Failed to connect to the database:', error));
 
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
+  origin: process.env.NODE_ENV === 'production'
     ? ['https://baly-ticketes-production.up.railway.app']
     : ['http://localhost:8080', 'http://localhost:3001'],
   credentials: true
@@ -34,14 +35,15 @@ app.use(express.urlencoded({ extended: true }));
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: 'Too many requests from this IP, please try again later.'
 });
 app.use('/api/', limiter);
 
-// Static files middleware
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
+// ✅ Correct frontend path
+const frontendPath = path.join(__dirname, '../frontend/dist');
+app.use(express.static(frontendPath));
 
 // Routes
 app.use('/api/tickets', ticketRoutes);
@@ -49,7 +51,7 @@ app.use('/api/tickets', ticketRoutes);
 // Serve frontend for all non-API routes
 app.get('*', (req, res) => {
   if (!req.path.startsWith('/api')) {
-    res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+    res.sendFile(path.join(frontendPath, 'index.html'));
   }
 });
 
@@ -61,7 +63,7 @@ app.get('/health', (req, res) => {
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Error:', err);
-  
+
   if (err instanceof Error) {
     if (err.message.includes("Can't reach database server")) {
       return res.status(503).json({
@@ -70,7 +72,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
       });
     }
   }
-  
+
   return errorHandler(err, req, res, next);
 });
 

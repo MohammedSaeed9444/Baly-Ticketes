@@ -1,6 +1,6 @@
 import { body, query, validationResult } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';
-import { createError } from './errorHandler';
+import { createError } from './errorHandler.js';
 
 // Validation rules for creating a ticket
 export const validateCreateTicket = [

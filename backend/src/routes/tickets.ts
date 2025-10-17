@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { validateCreateTicket, validateGetTickets, checkValidationErrors } from '../middleware/validation';
-import { createError } from '../middleware/errorHandler';
+import { validateCreateTicket, validateGetTickets, checkValidationErrors } from '../middleware/validation.js';
+import { createError } from '../middleware/errorHandler.js';
 import { Parser } from 'json2csv';
 
 interface CreateTicketBody {
