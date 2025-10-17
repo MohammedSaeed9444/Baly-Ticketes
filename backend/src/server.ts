@@ -10,6 +10,15 @@ import { errorHandler } from './middleware/errorHandler';
 const app = express();
 const prisma = new PrismaClient();
 
+// Database connection test
+prisma.$connect()
+  .then(() => {
+    console.log('Successfully connected to the database');
+  })
+  .catch((error) => {
+    console.error('Failed to connect to the database:', error);
+  });
+
 // Middleware
 app.use(helmet());
 app.use(cors({
@@ -47,7 +56,20 @@ app.get('/health', (req, res) => {
 });
 
 // Error handling middleware
-app.use(errorHandler);
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error('Error:', err);
+  
+  if (err instanceof Error) {
+    if (err.message.includes("Can't reach database server")) {
+      return res.status(503).json({
+        message: 'Database connection error. Please try again later.',
+        error: process.env.NODE_ENV === 'development' ? err.message : undefined
+      });
+    }
+  }
+  
+  return errorHandler(err, req, res, next);
+});
 
 // 404 handler
 app.use('*', (req, res) => {
