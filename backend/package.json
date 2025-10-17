@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "npx tsc && npx prisma generate",
+    "build": "cd ../frontend && npm run build && cd ../backend && npx tsc && npx prisma generate && node copy-frontend.js",
     "start": "node dist/server.js",
     "test": "node test-api.js",
     "setup": "node setup.js",

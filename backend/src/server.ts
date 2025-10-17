@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import path from 'path';
 import { PrismaClient } from '@prisma/client';
 import ticketRoutes from './routes/tickets';
 import { errorHandler } from './middleware/errorHandler';
@@ -23,8 +24,8 @@ prisma.$connect()
 app.use(helmet());
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://react-frontend-production-e28b.up.railway.app']
-    : ['http://localhost:8080'],
+    ? ['https://baly-ticketes-production.up.railway.app']
+    : ['http://localhost:8080', 'http://localhost:3001'],
   credentials: true
 }));
 app.use(morgan('combined'));
@@ -40,14 +41,16 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // Static files middleware
-app.use(express.static('dist'));
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
 // Routes
 app.use('/api/tickets', ticketRoutes);
 
-// Root route
-app.get('/', (req, res) => {
-  res.json({ message: 'Backend API is running' });
+// Serve frontend for all non-API routes
+app.get('*', (req, res) => {
+  if (!req.path.startsWith('/api')) {
+    res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+  }
 });
 
 // Health check
