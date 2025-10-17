@@ -1,10 +1,9 @@
-import express from 'express';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-import compression from 'compression';
+const express = require('express');
+const path = require('path');
+const compression = require('compression');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// Constants
+const DIST_DIR = path.join(__dirname, 'dist');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -13,11 +12,18 @@ const PORT = process.env.PORT || 8080;
 app.use(compression());
 
 // Serve static files from the dist directory
-app.use(express.static(join(__dirname, 'dist')));
+// Serve static files
+app.use(express.static(DIST_DIR));
 
-// Serve index.html for all routes (SPA support)
+// Handle SPA routing - always return index.html
 app.get('*', (req, res) => {
-  res.sendFile(join(__dirname, 'dist', 'index.html'));
+  res.sendFile(path.join(DIST_DIR, 'index.html'));
+});
+
+// Error handling
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
 });
 
 app.listen(PORT, () => {
