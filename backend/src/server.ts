@@ -15,7 +15,8 @@ app.use(helmet());
 app.use(cors({
   origin: [
     'http://localhost:8080',
-    'https://baly-ticketes-production.up.railway.app'
+    'https://baly-ticketes-production.up.railway.app',
+    'https://react-frontend-production-e28b.up.railway.app'
   ],
   credentials: true
 }));
