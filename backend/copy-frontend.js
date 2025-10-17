@@ -2,18 +2,17 @@ import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Fix for __dirname in ES modules
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename); 
+const __dirname = path.dirname(__filename);
 
-// Define paths
+// Change destination to match what server expects
 const frontendDistPath = path.join(__dirname, '../frontend/dist');
-const backendFrontendPath = path.join(__dirname, 'frontend/dist');
+const backendFrontendPath = path.join(__dirname, '../frontend/dist'); // Same location
 
-// Ensure the frontend/dist directory exists in backend
+// Ensure the directory exists
 fs.ensureDirSync(path.dirname(backendFrontendPath));
 
-// Copy frontend dist to backend
+// Copy frontend dist to the expected location
 fs.copySync(frontendDistPath, backendFrontendPath, { overwrite: true });
 
 console.log('Frontend dist files copied successfully!');
