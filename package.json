@@ -1,0 +1,18 @@
+{
+  "name": "route-complaint-hub",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install:backend": "cd backend && npm install",
+    "install:frontend": "cd frontend && npm install",
+    "postinstall": "npm run install:backend && npm run install:frontend",
+    "build:backend": "cd backend && npx tsc && npx prisma generate",
+    "build:frontend": "cd frontend && npm run build",
+    "build": "npm run build:backend && npm run build:frontend",
+    "start": "cd backend && npm start"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "prisma": "^5.7.1"
+  }
+}
