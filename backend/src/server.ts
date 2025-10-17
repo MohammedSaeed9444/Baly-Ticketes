@@ -13,11 +13,9 @@ const prisma = new PrismaClient();
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: [
-    'http://localhost:8080',
-    'https://baly-ticketes-production.up.railway.app',
-    'https://react-frontend-production-e28b.up.railway.app'
-  ],
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://react-frontend-production-e28b.up.railway.app']
+    : ['http://localhost:8080'],
   credentials: true
 }));
 app.use(morgan('combined'));
@@ -32,8 +30,16 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
+// Static files middleware
+app.use(express.static('dist'));
+
 // Routes
 app.use('/api/tickets', ticketRoutes);
+
+// Root route
+app.get('/', (req, res) => {
+  res.json({ message: 'Backend API is running' });
+});
 
 // Health check
 app.get('/health', (req, res) => {
